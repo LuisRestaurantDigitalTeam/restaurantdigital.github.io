@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Data Deletion — MenuOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d0d;
+      --surface:  #161616;
+      --border:   #252525;
+      --accent:   #f97316;
+      --red:      #ef4444;
+      --green:    #22c55e;
+      --text:     #e8e8e8;
+      --muted:    #888;
+      --radius:   10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+    }
+    .logo-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--text);
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 24px 96px;
+    }
+
+    .doc-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(26px, 5vw, 38px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .subtitle {
+      color: #aaa;
+      font-size: 15px;
+      max-width: 540px;
+      margin-bottom: 40px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── What gets deleted ── */
+    .deletion-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 36px;
+    }
+    .deletion-list h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .dl-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+    }
+    .dl-item:first-of-type { border-top: none; }
+    .dl-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+    .dl-text { font-size: 14px; color: #ccc; }
+    .dl-text strong { color: #e8e8e8; display: block; }
+
+    /* ── Status box ── */
+    #status-box {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      font-size: 14px;
+    }
+    #status-box.visible { display: block; }
+    #status-box.success { border-left: 3px solid var(--green); }
+    #status-box.error   { border-left: 3px solid var(--red); }
+    .status-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .status-label.success { color: var(--green); }
+    .status-label.error   { color: var(--red); }
+    #status-message { color: #ccc; }
+    #confirmation-code {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    /* ── Form ── */
+    .request-form h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+    input[type="email"],
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 18px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: var(--accent); }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--accent);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .checkbox-label { font-size: 13px; color: #aaa; }
+
+    button[type="submit"] {
+      padding: 12px 28px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button[type="submit"]:hover   { opacity: 0.88; }
+    button[type="submit"]:active  { transform: scale(0.98); }
+    button[type="submit"]:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Alternative ── */
+    .alt-contact {
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .alt-contact a { color: var(--accent); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-mark">M</div>
+    <span class="logo-name">MenuOS</span>
+  </div>
+</header>
+
+<main>
+  <p class="doc-eyebrow">Account & Privacy</p>
+  <h1>Request Data Deletion</h1>
+  <p class="subtitle">If you connected your Facebook or Instagram account to MenuOS and want us to delete all data associated with your account, submit the form below. We will process your request within 30 days.</p>
+
+  <!-- What gets deleted -->
+  <div class="deletion-list">
+    <h2>What will be deleted</h2>
+    <div class="dl-item">
+      <div class="dl-dot"></div>
+      <div class="dl-text">
+        <strong>Social account tokens</strong>
+        All OAuth access tokens connecting your Meta account to MenuOS.
+      </div>
+    </div>
+    <div class="dl-item">
+      <div class="dl-dot"></div>
+      <div class="dl-text">
+        <strong>Cached analytics data</strong>
+        Reach, impressions, and other insights fetched from your Facebook / Instagram accounts.
+      </div>
+    </div>
+    <div class="dl-item">
+      <div class="dl-dot"></div>
+      <div class="dl-text">
+        <strong>Your MenuOS account</strong>
+        Profile information, content plans, and any other data tied to your account.
+      </div>
+    </div>
+  </div>
+
+  <!-- Status box (shown after submission) -->
+  <div id="status-box" role="alert">
+    <div id="status-label" class="status-label"></div>
+    <div id="status-message"></div>
+    <div id="confirmation-code"></div>
+  </div>
+
+  <!-- Request form -->
+  <div class="request-form">
+    <h2>Submit deletion request</h2>
+
+    <label for="email">Email address linked to your MenuOS account</label>
+    <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required/>
+
+    <label for="fb-id">Facebook User ID <span style="color:var(--muted);font-weight:400">(optional — helps us find your data faster)</span></label>
+    <input type="text" id="fb-id" name="fb-id" placeholder="e.g. 1234567890"/>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="confirm" name="confirm" required/>
+      <label class="checkbox-label" for="confirm">
+        I confirm that I want to permanently delete all data MenuOS holds about me, including my connected social accounts and content plans. I understand this action cannot be undone.
+      </label>
+    </div>
+
+    <button type="submit" id="submit-btn" onclick="handleSubmit(event)">Submit Deletion Request</button>
+  </div>
+
+  <div class="alt-contact">
+    <strong>Prefer to email?</strong> Send a request to
+    <a href="mailto:jose@restaurantdigital.com">jose@restaurantdigital.com</a>
+    with the subject line <em>"Data Deletion Request"</em> and your account email. We'll confirm receipt within 2 business days.
+  </div>
+</main>
+
+<footer>
+  <a href="./privacy-policy.html">Privacy Policy</a> &nbsp;·&nbsp; © 2025 MenuOS · All rights reserved.
+</footer>
+
+<script>
+  function generateConfirmationCode() {
+    return 'DEL-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+  }
+
+  function showStatus(type, message, code) {
+    const box    = document.getElementById('status-box');
+    const label  = document.getElementById('status-label');
+    const msg    = document.getElementById('status-message');
+    const codeEl = document.getElementById('confirmation-code');
+
+    box.className = 'visible ' + type;
+    label.className = 'status-label ' + type;
+    label.textContent = type === 'success' ? '✓ Request Received' : '✗ Error';
+    msg.textContent = message;
+
+    if (code) {
+      codeEl.style.display = 'block';
+      codeEl.textContent = 'Confirmation code: ' + code;
+    } else {
+      codeEl.style.display = 'none';
+    }
+
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    const email   = document.getElementById('email').value.trim();
+    const fbId    = document.getElementById('fb-id').value.trim();
+    const confirm = document.getElementById('confirm').checked;
+    const btn     = document.getElementById('submit-btn');
+
+    if (!email) { showStatus('error', 'Please enter your email address.'); return; }
+    if (!confirm) { showStatus('error', 'Please check the confirmation box to proceed.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TODO (developer): Replace the block below with a real API call to your
+    // backend endpoint, e.g.:
+    //
+    //   const res = await fetch('/api/delete-user-data', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ email, fbId })
+    //   });
+    //   const data = await res.json();
+    //
+    // Your backend should:
+    //   1. Verify the email exists in the DB
+    //   2. Revoke Meta tokens (if stored)
+    //   3. Delete all user rows
+    //   4. Return { success: true, confirmationCode: '...' }
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // Simulated response (remove once backend is wired up)
+    await new Promise(r => setTimeout(r, 1200));
+    const confirmCode = generateConfirmationCode();
+
+    showStatus(
+      'success',
+      `We've received your deletion request for ${email}. All associated data will be permanently removed within 30 days. Keep your confirmation code for reference.`,
+      confirmCode
+    );
+
+    btn.textContent = 'Request Submitted';
+    document.getElementById('email').disabled   = true;
+    document.getElementById('fb-id').disabled   = true;
+    document.getElementById('confirm').disabled  = true;
+  }
+</script>
+
+</body>
+</html>
